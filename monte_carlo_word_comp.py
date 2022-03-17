@@ -8,6 +8,7 @@ import itertools
 import collections
 import random
 from pprint import pprint
+from utils import timer
 
 WORD_FILE = "words.txt"
 random.seed(9)
@@ -35,15 +36,18 @@ def apply_rule(w1, w2):
             return 0
     return -1
 
+@timer
 def main():
     words = import_wordlist()
     random.shuffle(words)
-    words = words[:111]
+    words = words[:500]
     # w1 must come before w2 lexicographically
     words.sort()
     pairs = list(itertools.combinations(words, 2))
     # if pairs are sorted, B will never be found in sem_graph
     random.shuffle(pairs)
+
+    print("running simulation...")
 
     manual_comp_count = 0
     for (w1, w2) in pairs:
@@ -53,10 +57,9 @@ def main():
             res = assign_random_val()
         sem_graph[w1].append((w2, res))
 
-    print(f"number of words:    {len(words)}")
-    print(f"number of pairs:    {len(pairs)}")
-    print(f"manual comparisons: {manual_comp_count}")
-    print(f"total comparisons:  {len(pairs)}")
+    print(f"number of words:     {len(words)}")
+    print(f"manual comparisons:  {manual_comp_count}")
+    print(f"total comparisons:   {len(pairs)}")
 
 
 if __name__ == "__main__":
