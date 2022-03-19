@@ -40,7 +40,7 @@ def apply_rule(w1, w2):
 def main():
     words = import_wordlist()
     random.shuffle(words)
-    words = words[:500]
+    words = words[:200]
     # w1 must come before w2 lexicographically
     words.sort()
     pairs = list(itertools.combinations(words, 2))
@@ -57,9 +57,9 @@ def main():
             res = assign_random_val()
         sem_graph[w1].append((w2, res))
 
-    print(f"number of words:     {len(words)}")
-    print(f"manual comparisons:  {manual_comp_count}")
-    print(f"total comparisons:   {len(pairs)}")
+    print(f"number of words:    {len(words):5}")
+    print(f"manual comparisons: {manual_comp_count:5}")
+    print(f"total comparisons:  {len(pairs):5}")
 
 
 if __name__ == "__main__":
