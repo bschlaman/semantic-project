@@ -2,8 +2,8 @@
 
 DROP TABLE IF EXISTS public.words;
 
-DROP TYPE pair_status;
-CREATE TYPE pair_status AS ENUM ('PENDING', 'OPEN', 'CLOSED');
+DROP TYPE word_pair_status;
+CREATE TYPE word_pair_status AS ENUM ('PENDING', 'OPEN', 'CLOSED');
 
 CREATE TABLE IF NOT EXISTS public.words
 (
@@ -16,6 +16,8 @@ CREATE TABLE IF NOT EXISTS public.words
     status pair_status DEFAULT 'PENDING',
     CONSTRAINT lex_order_check CHECK (word1 < word2)
 );
+ALTER TABLE words ADD CONSTRAINT unique_word_pair UNIQUE(word1, word2);
+
 INSERT INTO words (updated_at, word1, word2, sem_similarity) VALUES (CURRENT_TIMESTAMP,	'word1', 'word2', 0);
 
 TABLESPACE pg_default;
