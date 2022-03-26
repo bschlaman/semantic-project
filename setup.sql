@@ -1,18 +1,22 @@
 -- Table: public.words
 
--- DROP TABLE IF EXISTS public.words;
+DROP TABLE IF EXISTS public.words;
+
+DROP TYPE pair_status;
+CREATE TYPE pair_status AS ENUM ('PENDING', 'OPEN', 'CLOSED');
 
 CREATE TABLE IF NOT EXISTS public.words
 (
     id uuid NOT NULL DEFAULT gen_random_uuid(),
-    created_at timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at timestamp without time zone PRIMARY KEY DEFAULT CURRENT_TIMESTAMP,
     updated_at timestamp without time zone,
-    word1 character varying(24) COLLATE pg_catalog."default" NOT NULL,
-    word2 character varying(24) COLLATE pg_catalog."default" NOT NULL,
-    similarity int4range,
-    status character varying(10) COLLATE pg_catalog."default" NOT NULL DEFAULT 'PENDING'::character varying,
-    CONSTRAINT words_pkey PRIMARY KEY (id)
-)
+    word1 character varying(24) NOT NULL,
+    word2 character varying(24) NOT NULL,
+    sem_similarity smallint CHECK (sem_similarity >= 0 AND sem_similarity <= 4),
+    status pair_status DEFAULT 'PENDING',
+    CONSTRAINT lex_order_check CHECK (word1 < word2)
+);
+INSERT INTO words (updated_at, word1, word2, sem_similarity) VALUES (CURRENT_TIMESTAMP,	'word1', 'word2', 0);
 
 TABLESPACE pg_default;
 
