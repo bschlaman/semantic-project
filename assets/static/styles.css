@@ -1,40 +1,81 @@
 /*
-	### SETUP
-*/
+### SETUP
+ */
 
 :root {
-	/* off white */
-	--color1: #f4f4f4;
-	/* charcoal */
-	--color2: #242729;
-	/* blue highlight */
-	--color3: #2996ed;
-	/* slightly transparent black */
-	--transp-black: rgba(0, 0, 0, 0.9);
-	/* slightly transparent white */
-	--transp-white: rgba(255, 255, 255, 0.9);
-/*	--font: "Montserrat", sans-serif;*/
-	--font: "Quicksand", sans-serif;
+				/* off white */
+				--color1: #f4f4f4;
+				/* charcoal */
+				--color2: #242729;
+				/* blue highlight */
+				--color3: #2996ed;
+				/* slightly transparent black */
+				--transp-black: rgba(0, 0, 0, 0.9);
+				/* slightly transparent white */
+				--transp-white: rgba(255, 255, 255, 0.9);
+				/*	--font: "Montserrat", sans-serif;*/
+				--font: "Quicksand", sans-serif;
 }
 
 /* defaults */
 html {
-	scroll-behavior: smooth;
-	/* -webkit-tap-highlight-color: transparent;*/
-	box-sizing: border-box;
+				scroll-behavior: smooth;
+				/* -webkit-tap-highlight-color: transparent;*/
+				box-sizing: border-box;
 }
 a {
-	text-decoration: none;
+				text-decoration: none;
 }
 input, select, textarea, button {
-	font-family: inherit;
+				font-family: inherit;
 }
 
 /* global */
 body {
-	font-family: var(--font);
+				font-family: var(--font);
 }
 
 /*
-	### CONTENT
-*/
+### CONTENT
+ */
+.word-comp-wrapper {
+				max-width: 60%;
+margin: 0 auto;
+				text-align: center;
+}
+.word-comp-wrapper h3 {
+				font-size: 3rem;
+margin: 0;
+position: relative;
+}
+.word-comp-wrapper h3::after {
+content: "";
+position: absolute;
+bottom: -1rem;
+right: 0;
+left: 50%;
+			margin-left: -25%;
+height: 0.1rem;
+width: 50%;
+background: var(--color2);
+}
+.words-container {
+display: flex;
+				 justify-content: space-evenly;
+				 font-size: 4rem;
+padding: 3rem 0;
+}
+.words-container p {
+margin: 0;
+}
+.buttons-container {
+display: flex;
+				 justify-content: center;
+}
+.buttons-container button {
+				font-size: 4rem;
+width: 6rem;
+margin: 0 2rem;
+}
+
+
