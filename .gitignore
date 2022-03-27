@@ -2,3 +2,4 @@ words.txt
 test
 __pycache__
 src/logs
+config.json
