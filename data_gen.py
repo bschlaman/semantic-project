@@ -11,8 +11,8 @@ def timer(func):
         return res
     return wrapper
 
-# keeps a single instance of conn and cursor for duration of function call
-# might want to move to contextmanager in the future
+# this decorator keeps a single instance of
+# conn and cursor for duration of function call
 def conn_cursor(func):
     def wrapper(*args, **kwargs):
         prefix = "[wrapper] "
@@ -20,35 +20,52 @@ def conn_cursor(func):
         try:
             conn = psycopg2.connect(**args[0])
         except Exception as err:
-            print(f"\nCould not connect to db: {err}")
+            print(f"\nCould not connect to db: {err} (type: {type(err)}")
         else:
-            cursor = conn.cursor()
             print("Done.")
-            try:
-                func(conn, cursor, *args[1:])
-            except KeyboardInterrupt:
-                print()
-            print(f"{prefix}Committing conn...")
-            conn.commit()
-            cursor.close()
+            # if context exits successfully, transaction is committed
+            # if context exits with exception, transaction is rolled back
+            with conn, conn.cursor() as cursor:
+                try:
+                    func(cursor, *args[1:])
+                except KeyboardInterrupt:
+                    print()
+                # TODO: this may be bad practice
+                # not clear if a transaction will be rolled back
+                # if all exceptions are caught
+                except Exception as err:
+                    print(f"error: {type(err)}")
             conn.close()
+            print(f"{prefix}Closed connection.")
     return wrapper
 
 @conn_cursor
-def test_connection(conn, cursor):
+def test_connection(cursor):
     query = "SELECT CURRENT_TIMESTAMP"
     cursor.execute(query)
     res = cursor.fetchone()[0]
     print(f"{query} -> {res}")
 
+@conn_cursor
+def gen_data(cursor, word_pair):
+    query = (
+        f"INSERT INTO words"
+        " (updated_at, word1, word2) VALUES"
+        " (CURRENT_TIMESTAMP, %s, %s)")
+    cursor.execute(query, word_pair)
+
 def load_config():
     with open("config.json", "r") as f:
         return json.load(f)
 
+@timer
 def main():
     cfg = load_config()
     db_params = cfg["db_connection"]
     test_connection(db_params)
+
+    word_pair = ("word1", "word2") # temporary
+    gen_data(db_params, word_pair)
 
 if __name__ == "__main__":
     main()
