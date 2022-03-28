@@ -1,17 +1,8 @@
 import psycopg2
-import time
 import json
 import string
 import random
-
-# used to time individual functions
-def timer(func):
-    def wrapper(*args, **kwargs):
-        start = time.perf_counter()
-        res = func(*args, **kwargs)
-        print(f" - time: {(time.perf_counter() - start):.3f}")
-        return res
-    return wrapper
+from utils import timer
 
 # this decorator keeps a single instance of
 # conn and cursor for duration of function call
