@@ -1,6 +1,8 @@
 import psycopg2
 import time
 import json
+import string
+import random
 
 # used to time individual functions
 def timer(func):
@@ -32,9 +34,11 @@ def conn_cursor(func):
                     print()
                 # TODO: this may be bad practice
                 # not clear if a transaction will be rolled back
-                # if all exceptions are caught
+                # if all exceptions are caught.
+                # may want to except all psycopg2.errors differently
+                # from more generic ones
                 except Exception as err:
-                    print(f"error: {type(err)}")
+                    print(f"error: {err} (type: {type(err)})")
             conn.close()
             print(f"{prefix}Closed connection.")
     return wrapper
@@ -47,7 +51,7 @@ def test_connection(cursor):
     print(f"{query} -> {res}")
 
 @conn_cursor
-def gen_data(cursor, word_pair):
+def insert_word_pair(cursor, word_pair):
     query = (
         f"INSERT INTO words"
         " (updated_at, word1, word2) VALUES"
@@ -58,14 +62,28 @@ def load_config():
     with open("config.json", "r") as f:
         return json.load(f)
 
+# for testing purposes
 @timer
+@conn_cursor
+def generate_noise(cursor):
+    for _ in range(200):
+        words = map(lambda _: "".join(
+            random.choices(
+            string.ascii_lowercase + string.digits, k=random.randrange(5,7))
+            ), [None, None])
+        word_pair = tuple(sorted(words))
+
+        query = (
+            f"INSERT INTO words"
+            " (updated_at, word1, word2) VALUES"
+            " (CURRENT_TIMESTAMP, %s, %s)")
+        cursor.execute(query, word_pair)
+
 def main():
     cfg = load_config()
     db_params = cfg["db_connection"]
     test_connection(db_params)
-
-    word_pair = ("word1", "word2") # temporary
-    gen_data(db_params, word_pair)
+    generate_noise(db_params)
 
 if __name__ == "__main__":
     main()

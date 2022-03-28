@@ -7,8 +7,8 @@ CREATE TYPE word_pair_status AS ENUM ('PENDING', 'OPEN', 'CLOSED');
 
 CREATE TABLE IF NOT EXISTS public.words
 (
-    id uuid NOT NULL DEFAULT gen_random_uuid(),
-    created_at timestamp without time zone PRIMARY KEY DEFAULT CURRENT_TIMESTAMP,
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    created_at timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at timestamp without time zone,
     word1 character varying(24) NOT NULL,
     word2 character varying(24) NOT NULL,
