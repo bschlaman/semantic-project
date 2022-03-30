@@ -11,6 +11,20 @@
 	<link rel="icon" type="image/png" href="/favicon.ico" />
 	<title>Boilerplate</title>
 	<script>
+		window.onload = () => {
+			const word1 = document.querySelector(".words-container .word1");
+			const word2 = document.querySelector(".words-container .word2");
+			fetch("/get_words", { method: "GET" })
+				.then(res => res.json())
+				.then(data => {
+					console.log(data);
+					console.log(data.word1);
+					console.log(data.word2);
+					word1.innerHTML = data.word1;
+					word2.innerHTML = data.word2;
+				})
+				.catch((err) => ("Error occured", err));
+		}
 	</script>
 </head>
 <body><!-- workaround for FOUC --><script>let FF_FOUC_FIX;</script>
@@ -22,9 +36,9 @@
 		<div class="word-comp-wrapper">
 			<h3>Semantic Comparator</h3>
 			<div class="words-container">
-				<p class="word1">automobile</p>
-				<p class="sepperator">&#8901;</p>
-				<p class="word2">car</p>
+				<p class="word1">Loading...</p>
+				<p class="separator">&#8901;</p>
+				<p class="word2">Loading...</p>
 			</div>
 			<div class="buttons-container">
 				<button class="button0">0</button>

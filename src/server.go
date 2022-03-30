@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -33,13 +34,33 @@ func getWordsHandle() http.Handler {
 		defer conn.Close(context.Background())
 
 		var id, word1, word2 string
-		err = conn.QueryRow(context.Background(), "select id, word1, word2 from words limit 1").Scan(&id, &word1, &word2)
+		err = conn.QueryRow(context.Background(),
+			`SELECT id, word1, word2 FROM words
+			WHERE status = 'PENDING'::word_pair_status
+			ORDER BY random() LIMIT 1`,
+		).Scan(&id, &word1, &word2)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
-			os.Exit(1)
+			log.Errorf("QueryRow failed: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
 		}
 
-		fmt.Fprintln(w, id, word1, word2)
+		js, err := json.Marshal(&struct {
+			Id    string `json:"id"`
+			Word1 string `json:"word1"`
+			Word2 string `json:"word2"`
+		}{
+			id,
+			word1,
+			word2,
+		})
+		if err != nil {
+			log.Errorf("json.Marshal failed: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(js)
 	})
 }
 
