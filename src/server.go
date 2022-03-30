@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path"
 
 	"github.com/bschlaman/b-utils/pkg/logger"
 	"github.com/bschlaman/b-utils/pkg/utils"
@@ -14,7 +15,7 @@ import (
 
 const (
 	serverName string = "SEMANTIC-SERVER"
-	port       string = ":8081"
+	port       string = ":8082"
 	logPath    string = "logs/output.log"
 	configPath string = "config.json"
 	staticDir  string = "assets/static"
@@ -52,6 +53,8 @@ func init() {
 }
 
 func main() {
+	fs := http.FileServer(http.Dir(path.Join("..", staticDir)))
+	http.Handle("/", fs)
 	http.Handle("/echo", utils.LogReq(log)(utils.EchoHandle()))
 	http.Handle("/get_words", utils.LogReq(log)(getWordsHandle()))
 	log.Info("starting http server on port", port)
