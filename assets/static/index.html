@@ -12,18 +12,29 @@
 	<title>Sem-Comp</title>
 	<script>
 		window.onload = () => {
-			const word1 = document.querySelector(".words-container .word1");
-			const word2 = document.querySelector(".words-container .word2");
-			fetch("/get_words", { method: "GET" })
-				.then(res => res.json())
-				.then(data => {
-					console.log(data);
-					console.log(data.word1);
-					console.log(data.word2);
-					word1.innerHTML = data.word1;
-					word2.innerHTML = data.word2;
-				})
-				.catch((err) => ("Error occured", err));
+			let wordPairId;
+
+			document.addEventListener('keydown', (e) => {
+				console.log(`${e.code}`);
+				if (e.code === "KeyA") {
+					getWords();
+				}
+			});
+
+			function getWords() {
+				const word1 = document.querySelector(".words-container .word1");
+				const word2 = document.querySelector(".words-container .word2");
+				fetch("/get_words", { method: "GET" })
+					.then(res => res.json())
+					.then(data => {
+						console.log(data);
+						word1.innerHTML = data.word1;
+						word2.innerHTML = data.word2;
+						wordPairId = data.id;
+					})
+					.catch((err) => ("Error occured", err));
+			}
+			getWords();
 		}
 	</script>
 </head>

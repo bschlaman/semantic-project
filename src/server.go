@@ -35,9 +35,12 @@ func getWordsHandle() http.Handler {
 
 		var id, word1, word2 string
 		err = conn.QueryRow(context.Background(),
-			`SELECT id, word1, word2 FROM words
-			WHERE status = 'PENDING'::word_pair_status
-			ORDER BY random() LIMIT 1`,
+			`UPDATE words SET status = 'OPEN'::word_pair_status,
+			updated_at = CURRENT_TIMESTAMP WHERE id IN (
+				SELECT id FROM words
+				WHERE status = 'PENDING'::word_pair_status
+				ORDER BY random() LIMIT 1
+			) RETURNING id, word1, word2;`,
 		).Scan(&id, &word1, &word2)
 		if err != nil {
 			log.Errorf("QueryRow failed: %v\n", err)
