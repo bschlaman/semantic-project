@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -24,12 +23,21 @@ const (
 
 var log *logger.BLogger
 
+func getPgxConn() (*pgx.Conn, error) {
+	conn, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
+	if err != nil {
+		return nil, err
+	}
+	return conn, nil
+}
+
 func getWordsHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		conn, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
+		conn, err := getPgxConn()
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
-			os.Exit(1)
+			log.Errorf("unable to connect to database: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
 		}
 		defer conn.Close(context.Background())
 
@@ -67,6 +75,43 @@ func getWordsHandle() http.Handler {
 	})
 }
 
+func putWordsHandle() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var putReq struct {
+			Id            string `json:"id"`
+			SemSimilarity int    `json:"sem_similarity"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&putReq); err != nil {
+			log.Errorf("unable to decode json: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusBadRequest)
+			return
+		}
+
+		conn, err := getPgxConn()
+		if err != nil {
+			log.Errorf("unable to connect to database: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+		defer conn.Close(context.Background())
+
+		_, err = conn.Exec(context.Background(),
+			`UPDATE words SET
+			updated_at = CURRENT_TIMESTAMP,
+			status = 'CLOSED'::word_pair_status,
+			sem_similarity = $1
+			WHERE id = $2`,
+			putReq.SemSimilarity,
+			putReq.Id,
+		)
+		if err != nil {
+			log.Errorf("Exec failed: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+	})
+}
+
 func init() {
 	file, err := os.OpenFile(logPath, os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
@@ -81,6 +126,10 @@ func main() {
 	http.Handle("/", fs)
 	http.Handle("/echo", utils.LogReq(log)(utils.EchoHandle()))
 	http.Handle("/get_words", utils.LogReq(log)(getWordsHandle()))
+	http.Handle("/put_words", utils.LogReq(log)(putWordsHandle()))
+	http.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, path.Join("..", staticDir, "favicon.png"))
+	})
 	log.Info("starting http server on port", port)
 	log.Fatal(http.ListenAndServe(port, nil))
 }

@@ -16,9 +16,37 @@
 
 			document.addEventListener('keydown', (e) => {
 				console.log(`${e.code}`);
-				if (e.code === "KeyA") {
-					getWords();
+				let semSimilarity;
+				switch (e.code) {
+					case "KeyA":
+					case "Digit0":
+					case "Numpad0": semSimilarity = 0; break;
+					case "KeyS":
+					case "Digit1":
+					case "Numpad1": semSimilarity = 1; break;
+					case "KeyD":
+					case "Digit2":
+					case "Numpad2": semSimilarity = 2; break;
+					case "KeyF":
+					case "Digit3":
+					case "Numpad3": semSimilarity = 3; break;
+					case "KeyG":
+					case "Digit4":
+					case "Numpad4": semSimilarity = 4; break;
+					default: return;
 				}
+				console.log(`assigning sem_similarity: ${semSimilarity}`);
+				fetch("/put_words", {
+					method: "PUT",
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({
+						id:             wordPairId,
+						sem_similarity: semSimilarity,
+					}),
+				})
+				getWords();
 			});
 
 			function getWords() {
@@ -33,6 +61,7 @@
 						wordPairId = data.id;
 					})
 					.catch((err) => ("Error occured", err));
+				console.log("after fetch");
 			}
 			getWords();
 		}
