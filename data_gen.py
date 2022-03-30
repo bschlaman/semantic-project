@@ -2,6 +2,7 @@ import psycopg2
 import json
 import string
 import random
+import itertools
 from utils import timer
 
 # this decorator keeps a single instance of
@@ -53,6 +54,11 @@ def load_config():
     with open("config.json", "r") as f:
         return json.load(f)
 
+def import_wordlist():
+    with open("words.txt", "r") as f:
+        words = f.read().splitlines()
+    return words
+
 # for testing purposes
 @timer
 @conn_cursor
@@ -70,11 +76,29 @@ def generate_noise(cursor):
             " (CURRENT_TIMESTAMP, %s, %s)")
         cursor.execute(query, word_pair)
 
+@timer
+@conn_cursor
+def upload_pairs(cursor, words):
+    random.shuffle(words)
+    words = words[:30]
+    words.sort() # w1 must come before w2 lexicographically
+    pairs = list(itertools.combinations(words, 2))
+    random.shuffle(pairs)
+    for word_pair in pairs:
+        query = (
+            f"INSERT INTO words"
+            " (updated_at, word1, word2) VALUES"
+            " (CURRENT_TIMESTAMP, %s, %s)")
+        cursor.execute(query, word_pair)
+
 def main():
     cfg = load_config()
+    words = import_wordlist()
+
     db_params = cfg["db_connection"]
     test_connection(db_params)
-    generate_noise(db_params)
+    # generate_noise(db_params)
+    upload_pairs(db_params, words)
 
 if __name__ == "__main__":
     main()
