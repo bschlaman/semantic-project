@@ -100,7 +100,8 @@ func putWordsHandle() http.Handler {
 			updated_at = CURRENT_TIMESTAMP,
 			status = 'CLOSED'::word_pair_status,
 			sem_similarity = $1
-			WHERE id = $2`,
+			WHERE id = $2
+			AND status = 'OPEN'::word_pair_status`,
 			putReq.SemSimilarity,
 			putReq.Id,
 		)
