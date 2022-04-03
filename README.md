@@ -18,3 +18,4 @@
   - aesthetics
   - ensure safe handling of rapid user input
 - create cron job to close long opened rows
+- find performant alternative to `ORDER BY random() LIMIT 1`

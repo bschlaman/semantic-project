@@ -81,8 +81,7 @@ def generate_noise(cursor):
 @timer
 def generate_pairs(words):
     print("generating pairs...")
-    # workaround to remove words which cause sorting inconsistency with postgres
-    # possible other solution: dedupe on word.lower
+    # TODO: dedupe on word.lower
     WORD_BLOCKLIST = ["OK"]
     for w in WORD_BLOCKLIST: words.remove(w)
 
@@ -102,7 +101,7 @@ def generate_pairs(words):
 @conn_cursor
 def upload_pairs(cursor, pairs: list[tuple]):
     # pairs = pairs[:50000]
-    print(f"total pairs: {len(pairs)}")
+    print(f"records to insert: {len(pairs)}")
     query = (
         f"INSERT INTO words"
         " (updated_at, word1, word2) VALUES"
