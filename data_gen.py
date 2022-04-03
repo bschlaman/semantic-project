@@ -1,7 +1,9 @@
 import psycopg2
+import psycopg2.extras
 import json
 import string
 import random
+import re
 import itertools
 from utils import timer
 
@@ -77,19 +79,35 @@ def generate_noise(cursor):
         cursor.execute(query, word_pair)
 
 @timer
-@conn_cursor
-def upload_pairs(cursor, words):
-    random.shuffle(words)
-    words = words[:30]
-    words.sort() # w1 must come before w2 lexicographically
+def generate_pairs(words):
+    print("generating pairs...")
+    # workaround to remove words which cause sorting inconsistency with postgres
+    # possible other solution: dedupe on word.lower
+    WORD_BLOCKLIST = ["OK"]
+    for w in WORD_BLOCKLIST: words.remove(w)
+
+    words = words[:3707]
+
+    # w1 must come before w2 lexicographically, ignoring special chars
+    # below are alternative sort methods which are not compatible
+    # with postgres default behavior
+    # words.sort(key=lambda s: re.sub('[^A-Za-z]+', "", s).lower())
+    # words.sort(key=str.lower)
+    words.sort()
     pairs = list(itertools.combinations(words, 2))
-    random.shuffle(pairs)
-    for word_pair in pairs:
-        query = (
-            f"INSERT INTO words"
-            " (updated_at, word1, word2) VALUES"
-            " (CURRENT_TIMESTAMP, %s, %s)")
-        cursor.execute(query, word_pair)
+    random.shuffle(pairs) # want random word order in db
+    return pairs
+
+@timer
+@conn_cursor
+def upload_pairs(cursor, pairs: list[tuple]):
+    # pairs = pairs[:50000]
+    print(f"total pairs: {len(pairs)}")
+    query = (
+        f"INSERT INTO words"
+        " (updated_at, word1, word2) VALUES"
+        " (CURRENT_TIMESTAMP, %s, %s)")
+    psycopg2.extras.execute_batch(cursor, query, pairs, page_size=100000)
 
 def main():
     cfg = load_config()
@@ -98,7 +116,8 @@ def main():
     db_params = cfg["db_connection"]
     test_connection(db_params)
     # generate_noise(db_params)
-    upload_pairs(db_params, words)
+    pairs = generate_pairs(words)
+    upload_pairs(db_params, pairs)
 
 if __name__ == "__main__":
     main()

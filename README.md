@@ -9,7 +9,7 @@
 - on button press, async call to `/put_words`
 #### commands
 `docker run --rm -d -p 8080:80 dpage/pgadmin4`
-`docker run --rm --name pdb -e POSTGRES_PASSWORD=p -p 5432:5432 -d postgres`
+`docker run --rm -d --name pdb -e POSTGRES_PASSWORD=p -p 5432:5432 postgres`
 `docker run --rm -it postgres psql -h $(grep server /etc/hosts | awk '{print $1}') -U postgres`
 
 #### next steps

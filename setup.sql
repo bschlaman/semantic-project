@@ -10,8 +10,8 @@ CREATE TABLE IF NOT EXISTS public.words
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     created_at timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at timestamp without time zone,
-    word1 character varying(24) NOT NULL,
-    word2 character varying(24) NOT NULL,
+    word1 character varying(24) COLLATE "C" NOT NULL,
+    word2 character varying(24) COLLATE "C" NOT NULL,
     sem_similarity smallint CHECK (sem_similarity >= 0 AND sem_similarity <= 4),
     status word_pair_status DEFAULT 'PENDING'::word_pair_status,
     CONSTRAINT lex_order_check CHECK (word1::text < word2::text)
