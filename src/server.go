@@ -79,7 +79,7 @@ func putWordsHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var putReq struct {
 			Id            string `json:"id"`
-			SemSimilarity int    `json:"sem_similarity"`
+			SemSimilarity uint   `json:"sem_similarity"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&putReq); err != nil {
 			log.Errorf("unable to decode json: %v\n", err)
