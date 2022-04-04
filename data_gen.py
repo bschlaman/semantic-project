@@ -45,6 +45,13 @@ def test_connection(cursor):
     print(f"{query} -> {res}")
 
 @conn_cursor
+def get_table_size(cursor, table_name):
+    query = "SELECT pg_size_pretty(pg_total_relation_size(%s))"
+    cursor.execute(query, (table_name,))
+    res = cursor.fetchone()[0]
+    print(f"{query} -> {res}")
+
+@conn_cursor
 def insert_word_pair(cursor, word_pair):
     query = (
         f"INSERT INTO words"
@@ -89,7 +96,8 @@ def generate_pairs(words):
 
     # w1 must come before w2 lexicographically, ignoring special chars
     # below are alternative sort methods which are not compatible
-    # with postgres default behavior
+    # with postgres default sorting.  python sorting must be used in
+    # conjunction with postgres COLLATE "C" for word columns
     # words.sort(key=lambda s: re.sub('[^A-Za-z]+', "", s).lower())
     # words.sort(key=str.lower)
     words.sort()
@@ -114,9 +122,10 @@ def main():
 
     db_params = cfg["db_connection"]
     test_connection(db_params)
+    get_table_size(db_params, "words")
     # generate_noise(db_params)
-    pairs = generate_pairs(words)
-    upload_pairs(db_params, pairs)
+    # pairs = generate_pairs(words)
+    # upload_pairs(db_params, pairs)
 
 if __name__ == "__main__":
     main()
