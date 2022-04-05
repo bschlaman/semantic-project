@@ -15,7 +15,7 @@ import (
 
 const (
 	serverName string = "SEMANTIC-SERVER"
-	port       string = ":8082"
+	port       string = ":8080"
 	logPath    string = "logs/output.log"
 	configPath string = "config.json"
 	staticDir  string = "assets/static"
@@ -47,8 +47,8 @@ func getWordsHandle() http.Handler {
 			updated_at = CURRENT_TIMESTAMP WHERE id IN (
 				SELECT id FROM words
 				WHERE status = 'PENDING'::word_pair_status
-				ORDER BY random() LIMIT 1
-			) RETURNING id, word1, word2;`,
+				LIMIT 1
+			) RETURNING id, word1, word2`,
 		).Scan(&id, &word1, &word2)
 		if err != nil {
 			log.Errorf("QueryRow failed: %v\n", err)
