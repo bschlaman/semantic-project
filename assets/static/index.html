@@ -16,7 +16,6 @@
 
 			document.addEventListener('keydown', (e) => {
 				// TODO: make keydowns simply press the buttons, and put fetch in button press event
-				console.log(`${e.code}`);
 				let semSimilarity;
 				switch (e.code) {
 					case "KeyA":
@@ -34,6 +33,8 @@
 					case "KeyG":
 					case "Digit4":
 					case "Numpad4": semSimilarity = 4; break;
+					case "Digit5":
+					case "Numpad5": semSimilarity = 5; break;
 					default: return;
 				}
 				console.log(`assigning sem_similarity: ${semSimilarity}`);
@@ -62,7 +63,6 @@
 						wordPairId = data.id;
 					})
 					.catch((err) => ("Error occured", err));
-				console.log("after fetch");
 			}
 			getWords();
 		}
