@@ -6,67 +6,11 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
 	<meta name="author" content="Brendan Schlaman">
 
-	<!-- css, favicon, title -->
+	<!-- css, favicon, title, js -->
 	<link rel="stylesheet" type="text/css" href="styles.css">
 	<link rel="icon" type="image/png" href="/favicon.ico" />
+	<script src="main.js"></script>
 	<title>Sem-Comp</title>
-	<script>
-		window.onload = () => {
-			let wordPairId;
-
-			document.addEventListener('keydown', (e) => {
-				// TODO: make keydowns simply press the buttons, and put fetch in button press event
-				let semSimilarity;
-				switch (e.code) {
-					case "KeyA":
-					case "Digit0":
-					case "Numpad0": semSimilarity = 0; break;
-					case "KeyS":
-					case "Digit1":
-					case "Numpad1": semSimilarity = 1; break;
-					case "KeyD":
-					case "Digit2":
-					case "Numpad2": semSimilarity = 2; break;
-					case "KeyF":
-					case "Digit3":
-					case "Numpad3": semSimilarity = 3; break;
-					case "KeyG":
-					case "Digit4":
-					case "Numpad4": semSimilarity = 4; break;
-					case "Digit5":
-					case "Numpad5": semSimilarity = 5; break;
-					default: return;
-				}
-				console.log(`assigning sem_similarity: ${semSimilarity}`);
-				fetch("/put_words", {
-					method: "PUT",
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify({
-						id:             wordPairId,
-						sem_similarity: semSimilarity,
-					}),
-				})
-				getWords();
-			});
-
-			function getWords() {
-				const word1 = document.querySelector(".words-container .word1");
-				const word2 = document.querySelector(".words-container .word2");
-				fetch("/get_words", { method: "GET" })
-					.then(res => res.json())
-					.then(data => {
-						console.log(data);
-						word1.innerHTML = data.word1;
-						word2.innerHTML = data.word2;
-						wordPairId = data.id;
-					})
-					.catch((err) => ("Error occured", err));
-			}
-			getWords();
-		}
-	</script>
 </head>
 <body><!-- workaround for FOUC --><script>let FF_FOUC_FIX;</script>
 <div class="wrapper">
@@ -82,11 +26,11 @@
 				<p class="word2">Loading...</p>
 			</div>
 			<div class="buttons-container">
-				<button class="button0">0</button>
-				<button class="button1">1</button>
-				<button class="button2">2</button>
-				<button class="button3">3</button>
-				<button class="button4">4</button>
+				<button class="button0" data-val="0">0</button>
+				<button class="button1" data-val="1">1</button>
+				<button class="button2" data-val="2">2</button>
+				<button class="button3" data-val="3">3</button>
+				<button class="button4" data-val="4">4</button>
 			</div>
 		</div>
 	</div>
